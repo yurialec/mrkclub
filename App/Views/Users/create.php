@@ -4,7 +4,7 @@
             <a class="voltar" href="index.php"><img src="images/voltar.svg"></a>
             <h1 class="total">Salvar novo usuário</h1>
             <figure></figure>
-            <a class="sair" href="login.php">sair</a>
+            <a class="sair" href="/login/logout">sair</a>
         </header>
         <?php
         if (!empty($_SESSION['msg'])) {

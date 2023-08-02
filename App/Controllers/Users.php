@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Controller;
+use App\Models\Auth;
 use App\Models\Users as ModelsUsers;
 
 class Users extends Controller
@@ -14,6 +15,10 @@ class Users extends Controller
 
     public function index()
     {
+        if (!isset($_SESSION['logado'])) {
+            header('Location: /');
+        }
+
         $users = new ModelsUsers;
         $this->data['Users'] = $users->getAll();
 
@@ -25,6 +30,10 @@ class Users extends Controller
 
     public function create()
     {
+        if (!isset($_SESSION['logado'])) {
+            header('Location: /');
+        }
+
         if (isset($_POST['addUser'])) {
             $this->dataForm['newUser'] = filter_input_array(INPUT_POST, FILTER_DEFAULT);
             unset($this->dataForm['newUser']['addUser']);
@@ -47,6 +56,10 @@ class Users extends Controller
 
     public function delete($id = '')
     {
+        if (!isset($_SESSION['logado'])) {
+            header('Location: /');
+        }
+
         $this->id = $id;
         $deleteUser = new ModelsUsers;
         $deleteUser->delete($this->id);
@@ -64,6 +77,10 @@ class Users extends Controller
 
     public function update($id = '')
     {
+        if (!isset($_SESSION['logado'])) {
+            header('Location: /');
+        }
+
         $this->id = (int) $id;
         $updateUser = new ModelsUsers;
         $this->data['user'] = $updateUser->getUserById($this->id);

@@ -23,7 +23,7 @@
                 <input type="text" name="pesquisa" placeholder="Pesquisar...">
             </form>
             <figure></figure>
-            <a class="sair" href="login.php">sair</a>
+            <a class="sair" href="/login/logout">sair</a>
         </header>
         <?php
         if (!empty($_SESSION['msg'])) {

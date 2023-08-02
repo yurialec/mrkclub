@@ -14,6 +14,12 @@
 </head>
 
 <body>
+    <?php
+    if (!empty($_SESSION['msg'])) {
+        echo $_SESSION['msg'];
+        unset($_SESSION['msg']);
+    }
+    ?>
     <?php require_once '../App/Views/' . $viewName . '.php'; ?>
 </body>
 
