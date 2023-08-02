@@ -35,6 +35,9 @@ class Users extends Model
 
     private bool $result;
 
+    /** Parametro de pesquisa @var string */
+    private string $searchParam;
+
     public function getResult()
     {
         return $this->result;
@@ -199,6 +202,23 @@ class Users extends Model
             return $this->resultBd;
         } else {
             return [];
+        }
+    }
+
+    public function searchUser($searchParam)
+    {
+        $this->searchParam = $searchParam;
+        $query = "SELECT * FROM usuario WHERE nome LIKE :like";
+        $stmt = Model::getConn()->prepare($query);
+        $stmt->bindParam(':like', $this->searchParam);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            $this->resultBd = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $this->resultBd;
+        } else {
+            $_SESSION['msg'] = "<p><span style='color: #f00'>Nenhum resultado encontrado!</span><p>";
+            $this->result = false;
         }
     }
 }

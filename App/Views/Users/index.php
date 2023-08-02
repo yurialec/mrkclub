@@ -1,10 +1,14 @@
 <?php
+
+use App\Pagination;
+
 if (!empty($_SESSION['msg'])) {
     echo $_SESSION['msg'];
     unset($_SESSION['msg']);
 }
 
-// var_dump($_SESSION['user_permissao']);
+//O terceiro parametro indica quantos registros devem ser carregados por pagina
+$pagination = new Pagination($this->data['Users'], isset($_GET['page']) ? $_GET['page'] : 1, 10);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,20 +24,21 @@ if (!empty($_SESSION['msg'])) {
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="../../../public/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
     <div id="site">
         <header>
             <h1>USUÁRIOS</h1>
-            <form class="busca" action="">
-                <i><img src="/images/lupa.svg"></i>
-                <input type="text" name="pesquisa" placeholder="Pesquisar...">
+            <form class="busca" action="/users/search" method="POST">
+                <input type="text" name="pesquisa" placeholder="Nome do usuário">
+                <button type="submit" name="searchBtn"><i style="margin-right: 15px;" class="fa-solid fa-magnifying-glass fa-xl"></i></button>
             </form>
             <figure></figure>
             <a class="sair" href="/login/logout">sair</a>
         </header>
-        <ul>
+        <ul class="main">
             <li class="titulo">
                 <div class="texto nome">Nome</div>
                 <div class="texto cpf">CPF</div>
@@ -43,7 +48,7 @@ if (!empty($_SESSION['msg'])) {
                 <div class="editar"></div>
                 <div class="deletar"></div>
             </li>
-            <?php foreach ($this->data['Users'] as $user) : ?>
+            <?php foreach ($pagination->result() as $user) : ?>
                 <?php extract($user) ?>
                 <li class="dado">
                     <div class="texto nome"><?= $nome; ?></div>
@@ -75,9 +80,10 @@ if (!empty($_SESSION['msg'])) {
             <?php endforeach; ?>
         </ul>
         <div class="pagina">
-            <p class="resultado"><?= isset($this->data['total'][0]['num_total']); ?> resultado(s).</p>
-            <a href="">Anterior</a>
-            <a href="">Próxima</a>
+            <p class="resultado"><?= ($this->data['total'][0]['num_total']); ?> resultado(s).</p>
+            <p><?php $pagination->navigator(); ?></p>
+            <!-- <a href="">Anterior</a>
+            <a href="">Próxima</a> -->
         </div>
 
         <?php foreach ($_SESSION['user_permissao'] as $key => $value) : ?>

@@ -12,6 +12,8 @@ class Users extends Controller
     private int $id;
     /** Registros @var array */
     public array $data;
+    /** Parametro de pesquisa @var string */
+    private string $searchParam;
 
     public function index()
     {
@@ -67,7 +69,7 @@ class Users extends Controller
             $this->data['Users'] = $users->getAll();
 
             if ($newUser->getResult()) {
-                $this->loadView("Users/index", $this->data['Users']);
+                header('Location: /users/index');
             } else {
                 $this->loadView("Users/index", $this->data['Users']);
             }
@@ -90,7 +92,7 @@ class Users extends Controller
         $this->data['Users'] = $users->getAll();
 
         if ($deleteUser->getResult()) {
-            $this->loadView("Users/index", $this->data['Users']);
+            header('Location: /users/index');
         } else {
             echo "Erro";
             die;
@@ -143,12 +145,33 @@ class Users extends Controller
             $updateUser->update($this->dataForm);
 
             if ($updateUser->getResult()) {
-                $this->loadView("Users/index", $this->data['Users']);
+                header('Location: /users/index');
             } else {
                 $this->loadView('Users/update', [$this->data['user'], $this->data['total']]);
             }
         }
 
         $this->loadView('Users/update', [$this->data['user'], $this->data['total']]);
+    }
+
+    public function search()
+    {
+        if (isset($_POST['pesquisa'])) {
+            $this->searchParam = $_POST['pesquisa'];
+            $search = new ModelsUsers();
+            $this->data['search_result'] = $search->searchUser($this->searchParam);
+
+            $users = new ModelsUsers;
+            $this->data['Users'] = $users->getAll();
+            
+            $total = new ModelsUsers;
+            $this->data['total'] = $total->totalRecords();
+
+            if ($this->data['search_result'] > 1) {
+                $this->loadView("Users/index", [$this->data['search_result'], $this->data['Users'], $this->data['total']]);
+            } else {
+                header('Location: /users/index');
+            }
+        }
     }
 }
