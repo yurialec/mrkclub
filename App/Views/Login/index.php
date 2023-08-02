@@ -35,6 +35,10 @@ if (isset($_SESSION['logado'])) {
                 <input type="password" id="input_senha" placeholder="Senha" inputmode="numeric" name="senha">
                 <label for="input_senha">Senha</label>
             </div>
+            <div>
+                <p>Login: 28388470078</p>
+                <p>Senha: 123456</p>
+            </div>
 
             <button id="loginButton" name="loginButton">LOGAR</button>
             <?php
