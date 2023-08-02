@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Core\Model;
+use App\Models\Helpers\ValidarCPF as HelpersValidarCPF;
+use Exception;
 use PDO;
 use PDOException;
 
@@ -19,7 +21,7 @@ class Users extends Model
 
     //Dados do formulario
     private string $nome;
-    private int $cpf;
+    private string $cpf;
     private string $email;
     private string $senha;
     private string $status;
@@ -58,14 +60,22 @@ class Users extends Model
         $this->data = $data;
 
         // Os atrubutos da classe recebem os valores
-        $this->nome = $this->data['newUser']['nome'];
+        $this->nome = $this->data['nome'];
         $uuid = uniqid();
         $data_criacao = date('Y-m-d H:i:s');
-        $this->cpf = (int) str_replace("-", "", (str_replace(".", "", $this->data['newUser']['cpf'])));
-        $this->email = filter_var($this->data['newUser']['email'], FILTER_VALIDATE_EMAIL);
-        $this->senha = password_hash($this->data['newUser']['senha'], PASSWORD_DEFAULT);
-        $this->status = (int) $this->data['newUser']['status'];
-        $this->permissao = serialize($this->data['newUser']['permissao']);
+
+        $validar = new HelpersValidarCPF;
+        $validar->validar($this->data['cpf']);
+        $this->cpf = ($validar->validar($this->data['cpf']));
+        if (empty($this->cpf)) {
+            header('Location: /users/create');
+            $_SESSION['msg'] = "<p><span style='color: #f00'>CPF inválido!</span><p>";
+        }
+
+        $this->email = filter_var($this->data['email'], FILTER_VALIDATE_EMAIL);
+        $this->senha = password_hash($this->data['senha'], PASSWORD_DEFAULT);
+        $this->status = (int) $this->data['status'];
+        $this->permissao = serialize($this->data['permissao']);
 
         $query = "INSERT INTO usuario (uuid, nome, cpf, email, senha, permissao, data_criacao, status, data_atualizacao)
         VALUES (:uuid, :nome, :cpf, :email, :senha, :permissao, :data_criacao, :status, :data_atualizacao)";
@@ -81,7 +91,18 @@ class Users extends Model
         $stmt->bindParam(':data_atualizacao', $data_criacao);
         $stmt->bindParam(':status', $this->status);
 
-        if ($stmt->execute()) {
+        try {
+            $stmt->execute();
+        } catch (Exception $err) {
+            foreach ($err as $key => $value) {
+                if ($value[0] == 23000) {
+                    header('Location: /users/create');
+                    $_SESSION['msg'] = "<p><span style='color: #f00'>CPF já cadastrado</span><p>";
+                }
+            }
+        }
+
+        if ($stmt->rowCount() > 0) {
             $_SESSION['msg'] = "<p><span style='color: #008000'>Cadastrado com sucesso!</span><p>";
             $this->result = true;
         } else {
@@ -126,13 +147,15 @@ class Users extends Model
         $this->data = $data;
 
         // Os atrubutos da classe recebem os valores
-        $this->id = (int) $this->data['updateUser']['id'];
-        $this->nome = $this->data['updateUser']['nome'];
-        $this->cpf = (int) str_replace("-", "", (str_replace(".", "", $this->data['updateUser']['cpf'])));
-        $this->email = filter_var($this->data['updateUser']['email'], FILTER_VALIDATE_EMAIL);
-        $this->senha = password_hash($this->data['updateUser']['senha'], PASSWORD_DEFAULT);
-        $this->status = (int) $this->data['updateUser']['status'];
-        $this->permissao = serialize($this->data['updateUser']['permissao']);
+        $this->id = (int) $this->data['id'];
+        $this->nome = $this->data['nome'];
+
+        $this->cpf = (int) str_replace("-", "", (str_replace(".", "", $this->data['cpf'])));
+
+        $this->email = filter_var($this->data['email'], FILTER_VALIDATE_EMAIL);
+        $this->senha = password_hash($this->data['senha'], PASSWORD_DEFAULT);
+        $this->status = (int) $this->data['status'];
+        $this->permissao = serialize($this->data['permissao']);
         $data_atualizacao = date('Y-m-d H:i:s');
 
 

@@ -1,3 +1,11 @@
+<?php
+if (!empty($_SESSION['msg'])) {
+    echo $_SESSION['msg'];
+    unset($_SESSION['msg']);
+}
+
+// var_dump($_SESSION['user_permissao']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,18 +27,12 @@
         <header>
             <h1>USUÁRIOS</h1>
             <form class="busca" action="">
-                <i><img src="images/lupa.svg"></i>
+                <i><img src="/images/lupa.svg"></i>
                 <input type="text" name="pesquisa" placeholder="Pesquisar...">
             </form>
             <figure></figure>
             <a class="sair" href="/login/logout">sair</a>
         </header>
-        <?php
-        if (!empty($_SESSION['msg'])) {
-            echo $_SESSION['msg'];
-            unset($_SESSION['msg']);
-        }
-        ?>
         <ul>
             <li class="titulo">
                 <div class="texto nome">Nome</div>
@@ -49,10 +51,26 @@
                     <div class="texto email"><?= $email; ?></div>
                     <div class="texto data"><?= date("d/m/Y", strtotime($data_criacao)) ?></div>
                     <div class="texto status"><?php $status == 1 ? printf("Ativo") : printf("Inativo"); ?></div>
-                    <div class="editar"><a href="/users/update/<?= $id ?>"><img src="images/editar.svg"></a></div>
-                    <div class="deletar">
-                        <a href="/users/delete/<?= $id ?>" onClick="return confirm('Tem Certeza que deseja excluir este registro?')"><i class="fa-solid fa-trash-can fa-lg"></i></a>
-                    </div>
+
+                    <?php foreach ($_SESSION['user_permissao'] as $key => $value) : ?>
+                        <?php if ($value == 'usuario_editar') : ?>
+                            <div class="editar">
+                                <a href="/users/update/<?= $id ?>"><img src="/images/editar.svg"></a>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+
+                    <?php foreach ($_SESSION['user_permissao'] as $key => $value) : ?>
+                        <?php if ($value == 'usuario_deletar') : ?>
+                            <div class="deletar">
+                                <!-- Usuário logado não pode se excluir -->
+                                <?php if ($_SESSION['user_id'] !== $id) : ?>
+                                    <a href="/users/delete/<?= $id ?>" onClick="return confirm('Tem Certeza que deseja excluir este registro?')"><i class="fa-solid fa-trash-can fa-lg"></i></a>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -61,7 +79,12 @@
             <a href="">Anterior</a>
             <a href="">Próxima</a>
         </div>
-        <a href="/users/create" class="botao_add">Adicionar novo</a>
+
+        <?php foreach ($_SESSION['user_permissao'] as $key => $value) : ?>
+            <?php if ($value == 'usuario_add') : ?>
+                <a href="/users/create" class="botao_add">Adicionar novo</a>
+            <?php endif; ?>
+        <?php endforeach; ?>
     </div>
 </body>
 
