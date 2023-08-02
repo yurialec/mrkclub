@@ -2,7 +2,7 @@
 @import url("template.css");
 
 
-ul {
+ul.main {
     width: 100%;
     max-width: 1000px;
     min-height: calc(100vh - 200px);
@@ -100,4 +100,18 @@ a.botao_add {
     background-color: #EEE;
     font-size: 1.4rem;
     margin-right: 10px;
+}
+
+#ul-horizontal{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    gap: 20px;
+    width: 50%;
+}
+
+#active a {
+    background-color: var(--cor);
+    color: #fff;
 }
