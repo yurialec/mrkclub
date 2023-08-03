@@ -153,7 +153,13 @@ class Users extends Model
         $this->id = (int) $this->data['id'];
         $this->nome = $this->data['nome'];
 
-        $this->cpf = (int) str_replace("-", "", (str_replace(".", "", $this->data['cpf'])));
+        $validar = new HelpersValidarCPF;
+        $validar->validar($this->data['cpf']);
+        $this->cpf = ($validar->validar($this->data['cpf']));
+        if (empty($this->cpf)) {
+            header('Location: /users/create');
+            $_SESSION['msg'] = "<p><span style='color: #f00'>CPF inválido!</span><p>";
+        }
 
         $this->email = filter_var($this->data['email'], FILTER_VALIDATE_EMAIL);
         $this->senha = password_hash($this->data['senha'], PASSWORD_DEFAULT);
